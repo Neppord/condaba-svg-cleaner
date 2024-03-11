@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Converter</title>
+</head>
+<body>
+<input type="file" id="file-input" accept=".svg" multiple>
+<button id="read-button">Download</button>
+<script>
+    document.getElementById('read-button').addEventListener('click', () => {
+        const fileInput = document.getElementById('file-input');
+        const files = fileInput.files;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const name = file.name;
+            const type = file.type;
+            const reader = new FileReader();
+            reader.addEventListener('load', (event) => {
+                let fileContents = event.target.result;
+                let filteredContents = fileContents.replace(/\s*?<sodipodi:namedview[\s\S]*?<\/sodipodi:namedview>/g, "");
+                let blob = new Blob([filteredContents], {type});
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+            reader.readAsText(file);
+        }
+    });
+</script>
+</body>
+</html>
